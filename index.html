@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CineStream – Discover & Watch</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      color:#fff;
+      font-family:'Segoe UI',sans-serif;
+      padding-top:80px;
+    }
+    .navbar { background: rgba(0,0,0,.9)!important; }
+    .hero {
+      text-align:center; 
+      padding:80px 20px; 
+      background:url("https://wallpapercave.com/wp/wp9128441.jpg") center/cover no-repeat;
+      border-radius:20px;
+    }
+    .hero h1 { font-weight:700; font-size:2.5rem; text-shadow:0 3px 6px rgba(0,0,0,.7);}
+    .hero p { font-size:1.1rem; color:#ddd; margin-top:15px;}
+    .hero .btn { margin-top:20px; border-radius:30px;}
+    .card {
+      border:none; border-radius:1rem; overflow:hidden; 
+      transition:transform .3s, box-shadow .3s;
+      background:#111; color:#eee;
+    }
+    .card:hover { transform:scale(1.05); box-shadow:0 8px 24px rgba(0,0,0,.6);}
+    .card-img-top { height:280px; object-fit:cover;}
+    .badge { cursor:pointer; margin:2px; background:#333; }
+    .badge:hover { background:#0dcaf0; }
+    footer { margin-top:60px; padding:20px 0; background:#000; text-align:center; color:#bbb; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="#"><i class="fa-solid fa-film me-2"></i>CineStream</a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navCollapse">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navCollapse">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+      </ul>
+      <form class="d-flex me-3" onsubmit="return false">
+        <input id="searchInput" class="form-control rounded-pill" type="search" placeholder="Search movies...">
+      </form>
+      <a id="watchlistLink" href="watchlist.html" class="btn btn-outline-light position-relative rounded-pill">
+        <i class="fa-regular fa-bookmark"></i>
+        <span id="watchCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="container hero">
+  <h1>Welcome to CineStream</h1>
+  <p>Discover trending movies, build your watchlist, and never miss your favorites.</p>
+  <a href="#moviesRow" class="btn btn-primary btn-lg"><i class="fa fa-play me-2"></i> Explore Movies</a>
+</section>
+
+<main class="container mt-5">
+  <!-- Categories -->
+  <div id="categoryBadges" class="d-flex flex-wrap justify-content-center mb-4"></div>
+
+  <!-- Movies -->
+  <div id="moviesRow" class="row g-4"></div>
+  <div id="noResults" class="text-center mt-5" style="display:none">No movies found.</div>
+</main>
+
+<!-- Footer -->
+<footer>
+  <p>&copy; 2025 CineStream. Designed with ❤️ using HTML, CSS, Bootstrap & JS.</p>
+</footer>
+
+<script>
+// ---------------- Movies Data ----------------
+const movies = [
+  { id:1, title:"Inception", category:"Sci-Fi", image:"https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRRyuWmayVBvqjd1MxTKpRgauq2cCtUzb7Q9QvaFTkAuxAU_EYMoCE3wBuJeftxIzf0grreIw" },
+  { id:2, title:"Titanic", category:"Romance", image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMzsZYpklmQ-dGmLsdqTfiqRTqSA2YRbHPSQ&s" },
+  { id:3, title:"The Dark Knight", category:"Action", image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTE_3g88pN5seiR0uV3-fJ2Jt981qQ9J7dWfQ&s" },
+  { id:4, title:"Interstellar", category:"Sci-Fi", image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSS9maE7-yWPpULS8xay8yVKGnVZctnXkOXMg&s" },
+  { id:5, title:"La La Land", category:"Romance", image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUMLQlHu_gPQYe_hrYq9DvpQV2Du0JTUtOEg&s" }
+];
+
+let watchlist = JSON.parse(localStorage.getItem("watchlist")) || [];
+
+// ---------------- Save Watchlist ----------------
+function saveWatchlist() {
+  localStorage.setItem("watchlist", JSON.stringify(watchlist));
+  document.getElementById("watchCount").textContent = watchlist.length;
+}
+
+// ---------------- Add to Watchlist ----------------
+function addToWatchlist(id) {
+  const movie = movies.find(m => m.id === id);
+  if (!watchlist.find(m => m.id === id)) {
+    watchlist.push(movie);
+    saveWatchlist();
+  }
+}
+
+// ---------------- Display Movies ----------------
+function displayMovies(list) {
+  const row = document.getElementById("moviesRow");
+  row.innerHTML = list.map(m => `
+    <div class="col-sm-6 col-md-4 col-lg-3">
+      <div class="card h-100">
+        <img src="${m.image}" class="card-img-top" alt="${m.title}">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">${m.title}</h5>
+          <p><span class="badge bg-secondary">${m.category}</span></p>
+          <button class="btn btn-primary mt-auto" onclick="addToWatchlist(${m.id})">
+            <i class="fa fa-bookmark"></i> Add to Watchlist
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+  document.getElementById("noResults").style.display = list.length ? "none" : "block";
+}
+
+// ---------------- Categories ----------------
+function populateCategories() {
+  const categories = ["All", ...new Set(movies.map(m => m.category))];
+  const container = document.getElementById("categoryBadges");
+  container.innerHTML = categories.map(c => `
+    <span class="badge px-3 py-2" onclick="filterCategory('${c}')">${c}</span>
+  `).join("");
+}
+
+// ---------------- Filter & Search ----------------
+function filterCategory(category) {
+  const term = document.getElementById("searchInput").value.toLowerCase();
+  let filtered = movies.filter(m => category==="All" || m.category===category);
+  filtered = filtered.filter(m => m.title.toLowerCase().includes(term));
+  displayMovies(filtered);
+}
+
+document.getElementById("searchInput").addEventListener("input", () => filterCategory("All"));
+
+// ---------------- Init ----------------
+populateCategories();
+displayMovies(movies);
+saveWatchlist();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

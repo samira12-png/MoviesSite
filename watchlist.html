@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CineStream – Your Watchlist</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      color:#fff;
+      font-family:'Segoe UI',sans-serif;
+      padding-top:80px;
+    }
+    .navbar { background: rgba(0,0,0,.9)!important; }
+    .hero {
+      text-align:center; 
+      padding:60px 20px; 
+      background:url("https://wallpapercave.com/wp/wp11847045.jpg") center/cover no-repeat;
+      border-radius:20px;
+      margin:0 10px;
+    }
+    .hero h1 { font-weight:700; font-size:2.2rem; text-shadow:0 3px 6px rgba(0,0,0,.7);}
+    .hero p { font-size:1.1rem; color:#ddd; margin-top:10px;}
+    .card {
+      border:none; border-radius:1rem; overflow:hidden;
+      transition:transform .3s, box-shadow .3s;
+      background:#111; color:#eee;
+    }
+    .card:hover { transform:scale(1.05); box-shadow:0 8px 24px rgba(0,0,0,.6);}
+    .card-img-top { height:220px; object-fit:cover; }
+    .btn { border-radius:30px; }
+    .btn-danger { background:#dc3545; border:none; }
+    .btn-danger:hover { background:#bb2d3b; }
+    #emptyMsg { color:#ccc; text-align:center; margin-top:40px; font-size:1.2rem;}
+    footer { margin-top:60px; padding:20px 0; background:#000; text-align:center; color:#bbb; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="index.html"><i class="fa-solid fa-film me-2"></i>CineStream</a>
+    <div>
+      <a class="btn btn-outline-light me-2 rounded-pill" href="index.html"><i class="fa fa-home me-1"></i> Home</a>
+      <button class="btn btn-outline-danger rounded-pill" id="clearBtn"><i class="fa fa-trash me-1"></i> Clear Watchlist</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="container hero">
+  <h1>Your Watchlist</h1>
+  <p>All the movies you’ve saved to watch later are listed here.</p>
+</section>
+
+<!-- Watchlist -->
+<main class="container mt-5">
+  <div id="watchRow" class="row g-4"></div>
+  <div id="emptyMsg" style="display:none">Your watchlist is empty. Go back and add some movies 🍿</div>
+</main>
+
+<!-- Footer -->
+<footer>
+  <p>&copy; 2025 CineStream. Designed with ❤️ using HTML, CSS, Bootstrap & JS.</p>
+</footer>
+
+<script>
+// ---------------- Watchlist Data ----------------
+let watchlist = JSON.parse(localStorage.getItem("watchlist")) || [];
+
+// ---------------- Save Watchlist ----------------
+function saveWatchlist() {
+  localStorage.setItem("watchlist", JSON.stringify(watchlist));
+  renderWatchlist();
+}
+
+// ---------------- Remove Movie ----------------
+function removeFromWatchlist(id) {
+  watchlist = watchlist.filter(m => m.id !== id);
+  saveWatchlist();
+}
+
+// ---------------- Render Watchlist ----------------
+function renderWatchlist() {
+  const row = document.getElementById("watchRow");
+  row.innerHTML = watchlist.map(m => `
+    <div class="col-sm-6 col-md-4 col-lg-3">
+      <div class="card h-100">
+        <img src="${m.image}" class="card-img-top" alt="${m.title}">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">${m.title}</h5>
+          <p><span class="badge bg-secondary">${m.category}</span></p>
+          <button class="btn btn-danger mt-auto" onclick="removeFromWatchlist(${m.id})">
+            <i class="fa fa-trash"></i> Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+  document.getElementById("emptyMsg").style.display = watchlist.length ? "none" : "block";
+}
+
+// ---------------- Clear Watchlist ----------------
+document.getElementById("clearBtn").addEventListener("click", () => {
+  if(confirm("Are you sure you want to clear your watchlist?")) {
+    watchlist = [];
+    saveWatchlist();
+  }
+});
+
+// ---------------- Init ----------------
+renderWatchlist();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
